@@ -44,7 +44,14 @@ public class Servant implements Runnable {
                 break;
 
             case Message.CHAT:
-                this.write(message);
+                String MESG = ((ChatMessage) message).MESSAGE;
+                if (MESG.equals("time"))
+                {
+                    if (this.source != null && this.source.equals(message.getSource()))
+                        Time(message);
+                }
+                else
+                    this.write(message);
                 break;
 
             case Message.LOGIN:
