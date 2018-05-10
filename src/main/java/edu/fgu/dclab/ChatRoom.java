@@ -41,29 +41,10 @@ public class ChatRoom implements Runnable {
         try {
             while (true) {
                 Message message = this.messageQueue.take();
-                switch (message.getType()){
-                    case Message.CHAT:
-                        String MESG = ((ChatMessage) message).MESSAGE;
-                        if (MESG.equals("time"))
-                        {
-                            for (Servant servant : servants) {
-                                if (servant.source != null && servant.source.equals(message.getSource()))
-                                    servant.Time(message);
-                            }
-                        }
-                        else
-                            for (Servant servant : servants) {
-                                servant.process(message);
-                            }
-                        break;
-                    default:
-                        for (Servant servant : servants) {
-                            servant.process(message);
-                        }
-                        break;
+                for (Servant servant : servants) {
+                    servant.process(message);
+                    }
                 }
-
-            }
         }
         catch (InterruptedException e) {
             e.printStackTrace();
