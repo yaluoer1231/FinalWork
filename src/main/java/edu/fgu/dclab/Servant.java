@@ -10,9 +10,6 @@ import java.util.Date;
 
 
 public class Servant implements Runnable {
-    Date  date = new Date();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String Time = sdf.format(date);
 
     private ObjectOutputStream out = null;
     public String source = null;
@@ -75,6 +72,9 @@ public class Servant implements Runnable {
     }
 
     public void Time(Message message){
+        Date  date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String Time = sdf.format(date);
         write(new ChatMessage("站長", "現在時間：「" + Time + "」"));
     }
 
