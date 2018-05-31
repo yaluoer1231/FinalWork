@@ -1,6 +1,7 @@
 package edu.fgu.dclab;
 
 import com.sun.beans.editors.StringEditor;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import java.io.*;
 import java.net.Socket;
@@ -12,6 +13,7 @@ public class Servant implements Runnable {
     private ObjectOutputStream out = null;
     public String source = null;
     public static String Location = "Home";
+    public static String[] BAG = new String[8];
 
     private Socket socket = null;
 
@@ -112,34 +114,56 @@ public class Servant implements Runnable {
     }
     void MessgageProcess(Message message){
         String MESG = ((ChatMessage) message).MESSAGE;
+
         if (MESG.equals("Sell"))//出貨
         {
             write(new ChatMessage("站長", message.getSource()+"販售了東西"));
         }
+        else if (MESG.equals("羊毛"))
+            for (int i = 0 ; i < 8; i++)
+            {
+                if (BAG[i].equals(MESG))
+                {
+                    write(new ChatMessage("站長", "使用"+MESG));
+                    BAG[i] = null;
+                    i += 10;
+                }
+            }
         else if (MESG.equals("Home") || MESG.equals("CowSheep") || MESG.equals("Chicken") || MESG.equals("Field"))
             FarmInstruction.FarmMove(message,this,MESG);//人物移動
         else if (MESG.equals("A") || MESG.equals("B") || MESG.equals("C") || MESG.equals("D"))//人物指令
         {
+            String A = BAG[0]+","+BAG[1]+","+BAG[2]+","+BAG[3]+","+BAG[4]+","+BAG[5]+","+BAG[6]+","+BAG[7];
             if (MESG.equals("A"))
-                write(new ChatMessage("站長", "開啟背包"));
+                write(new ChatMessage("站長", A));
+                /*for (int i = 0 ; i < 8; i++)
+                {
+                    if (BAG[i] == null)
+                        write(new ChatMessage("站長", "空"));
+                    else
+                        write(new ChatMessage("站長", BAG[i]));
+                }*/
+
             else if (MESG.equals("B"))
-                write(new ChatMessage("站長", "使用道具"));
+                ;
+
             else if (MESG.equals("C"))
                 write(new ChatMessage("站長", "丟棄物品"));
             else if (MESG.equals("D"))
                 write(new ChatMessage("站長", "個人資料"));
         }
+
         else  if (MESG.equals("Location"))//地點顯示
             write(new ChatMessage("站長", message.getSource()+"現在位於"+Location));
         else {//對應地區的指令操作
             if (Location.equals("Home"))
-                FarmInstruction.Home(message,this,MESG);
+                FarmInstruction.Home(message,this,MESG, BAG);
             else if (Location.equals("CowSheep"))
-                FarmInstruction.CowSheep(message,this,MESG);
+                FarmInstruction.CowSheep(message,this,MESG, BAG);
             else if (Location.equals("Chicken"))
-                FarmInstruction.Chicken(message,this,MESG);
+                FarmInstruction.Chicken(message,this,MESG, BAG);
             else if (Location.equals("Field"))
-                FarmInstruction.Field(message,this,MESG);
+                FarmInstruction.Field(message,this,MESG, BAG);
             else
                 this.write(message);
         }
