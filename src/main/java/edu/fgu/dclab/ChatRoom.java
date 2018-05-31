@@ -27,6 +27,7 @@ public class ChatRoom implements Runnable {
         return this.roomNumber;
     }
 
+
     public void multicast(Message message) {
         try {
             this.messageQueue.put(message);

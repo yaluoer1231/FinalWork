@@ -5,14 +5,13 @@ import com.sun.beans.editors.StringEditor;
 import java.io.*;
 import java.net.Socket;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 public class Servant implements Runnable {
 
     private ObjectOutputStream out = null;
     public String source = null;
+    public static String Location = "Home";
 
     private Socket socket = null;
 
@@ -41,16 +40,8 @@ public class Servant implements Runnable {
                 break;
 
             case Message.CHAT:
-                String MESG = ((ChatMessage) message).MESSAGE;
-                if (MESG.equals("time"))
-                {
-                    if (this.source != null && this.source.equals(message.getSource()))
-                        Time(message);
-                }
-                else
-                    this.write(message);
+                MessgageProcess(message);
                 break;
-
             case Message.LOGIN:
                 if (this.source == null) {
                     this.source = ((LoginMessage) message).ID;
@@ -69,13 +60,6 @@ public class Servant implements Runnable {
 
             default:
         }
-    }
-
-    public void Time(Message message){
-        Date  date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String Time = sdf.format(date);
-        write(new ChatMessage("站長", "現在時間：「" + Time + "」"));
     }
 
 
@@ -125,6 +109,41 @@ public class Servant implements Runnable {
         catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    void MessgageProcess(Message message){
+        String MESG = ((ChatMessage) message).MESSAGE;
+        if (MESG.equals("Sell"))//出貨
+        {
+            write(new ChatMessage("站長", message.getSource()+"販售了東西"));
+        }
+        else if (MESG.equals("Home") || MESG.equals("CowSheep") || MESG.equals("Chicken") || MESG.equals("Field"))
+            FarmInstruction.FarmMove(message,this,MESG);//人物移動
+        else if (MESG.equals("A") || MESG.equals("B") || MESG.equals("C") || MESG.equals("D"))//人物指令
+        {
+            if (MESG.equals("A"))
+                write(new ChatMessage("站長", "開啟背包"));
+            else if (MESG.equals("B"))
+                write(new ChatMessage("站長", "使用道具"));
+            else if (MESG.equals("C"))
+                write(new ChatMessage("站長", "丟棄物品"));
+            else if (MESG.equals("D"))
+                write(new ChatMessage("站長", "個人資料"));
+        }
+        else  if (MESG.equals("Location"))//地點顯示
+            write(new ChatMessage("站長", message.getSource()+"現在位於"+Location));
+        else {//對應地區的指令操作
+            if (Location.equals("Home"))
+                FarmInstruction.Home(message,this,MESG);
+            else if (Location.equals("CowSheep"))
+                FarmInstruction.CowSheep(message,this,MESG);
+            else if (Location.equals("Chicken"))
+                FarmInstruction.Chicken(message,this,MESG);
+            else if (Location.equals("Field"))
+                FarmInstruction.Field(message,this,MESG);
+            else
+                this.write(message);
+        }
+
     }
 }
 
