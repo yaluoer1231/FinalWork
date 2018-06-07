@@ -26,7 +26,7 @@ public class Servant implements Runnable {
 
         try {
             this.out = new ObjectOutputStream(
-            this.socket.getOutputStream()
+                    this.socket.getOutputStream()
             );
         }
         catch (IOException e) {
@@ -37,31 +37,30 @@ public class Servant implements Runnable {
     }
 
     public void process(Message message) {
-        String MESG = ((ChatMessage) message).MESSAGE;
         switch (message.getType()) {
             case Message.ROOM_STATE:
                 this.write(message);
                 break;
 
             case Message.CHAT:
-                if (station.equals("B") || station.equals("C"))
+
+                if (station.equals("A") == false)
                     BagCrtl(message);
-                else if (station.equals("農田"))
-                    FarmInstruction.Field(message,this,MESG, BAG,station);
                 else
                     MessgageProcess(message);
                 break;
+
             case Message.LOGIN:
                 if (this.source == null) {
                     this.source = ((LoginMessage) message).ID;
                     this.room.multicast(new ChatMessage(
-                        "站長",
-                        MessageFormat.format("{0} 進入了聊天室。", this.source)
+                            "站長",
+                            MessageFormat.format("{0} 進入了聊天室。", this.source)
                     ));
 
                     this.room.multicast(new RoomMessage(
-                        room.getRoomNumber(),
-                        room.getNumberOfGuests()
+                            room.getRoomNumber(),
+                            room.getNumberOfGuests()
                     ));
                 }
 
@@ -70,6 +69,8 @@ public class Servant implements Runnable {
             default:
         }
     }
+
+
 
 
 
@@ -85,8 +86,8 @@ public class Servant implements Runnable {
 
     private void greet() {
         String[] greetings = {
-            "歡迎來到 無聊之站 聊天室",
-            "請問你的【暱稱】?"
+                "歡迎來到 無聊之站 聊天室",
+                "請問你的【暱稱】?"
         };
 
         for (String msg : greetings) {
@@ -99,9 +100,9 @@ public class Servant implements Runnable {
         Message message;
 
         try (
-            ObjectInputStream in = new ObjectInputStream(
-                this.socket.getInputStream()
-            )
+                ObjectInputStream in = new ObjectInputStream(
+                        this.socket.getInputStream()
+                )
         ) {
             this.process((Message)in.readObject());
 
@@ -121,7 +122,7 @@ public class Servant implements Runnable {
     }
     void MessgageProcess(Message message){
         String MESG = ((ChatMessage) message).MESSAGE;
-        for (int i = 0; i < 8 ; i++)
+        for (int i = 0; i < 8; i++)
             if (BAG[i] == null)
                 BAG[i] = "空";
         if (MESG.equals("Sell"))//出貨
@@ -149,7 +150,6 @@ public class Servant implements Runnable {
             else if (MESG.equals("個人資料"))
                 write(new ChatMessage("站長", "顯示個人資料"));
         }
-
         else  if (MESG.equals("現在位置"))//地點顯示
             write(new ChatMessage("站長", message.getSource()+"現在位於"+Location));
         else {//對應地區的指令操作
@@ -160,7 +160,7 @@ public class Servant implements Runnable {
             else if (Location.equals("雞舍"))
                 FarmInstruction.Chicken(message,this,MESG, BAG);
             else if (Location.equals("農田"))
-                FarmInstruction.Field(message,this,MESG, BAG,station);
+                FarmInstruction.Field(message,this,MESG, BAG);
             else
                 this.write(message);
         }
